@@ -128,6 +128,8 @@ class Plugin
 						$success = false;
 					}
 					if ($success == true) {
+						$serviceClass->setStatus('active')->save();
+						$GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 						$serviceClass->setServerStatus('running')->save();
 						$GLOBALS['tf']->history->add($settings['TABLE'], 'change_server_status', 'running', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 					}					
