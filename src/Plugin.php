@@ -118,9 +118,8 @@ class Plugin
 						$GLOBALS['tf']->dispatcher->dispatch($subevent, self::$module.'.reactivate');
 					} catch (\Exception $e) {
 						myadmin_log('myadmin', 'error', 'Got Exception '.$e->getMessage(), __LINE__, __FILE__, self::$module, $serviceClass->getId());
-						$serverData = get_service_master($serviceClass->getServer(), self::$module);
-						$subject = 'Cant Connect to Webhosting Server to Reactivate';
-						$email = $subject.'<br>Username '.$serviceClass->getUsername().'<br>Server '.$serverData[$settings['PREFIX'].'_name'].'<br>'.$e->getMessage();
+						$subject = 'Cant Connect to DB to Reactivate';
+						$email = $subject.'<br>Username '.$serviceClass->getUsername().'<br>'.$e->getMessage();
 						(new \MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/website_connect_error.tpl');
 						$success = false;
 					}
@@ -181,9 +180,8 @@ class Plugin
 						$GLOBALS['tf']->dispatcher->dispatch($subevent, self::$module.'.terminate');
 					} catch (\Exception $e) {
 						myadmin_log('myadmin', 'error', 'Got Exception '.$e->getMessage(), __LINE__, __FILE__, self::$module, $serviceClass->getId());
-						$serverData = get_service_master($serviceClass->getServer(), self::$module);
-						$subject = 'Cant Connect to Webhosting Server to Suspend';
-						$email = $subject.'<br>Username '.$serviceClass->getUsername().'<br>Server '.$serverData[$settings['PREFIX'].'_name'].'<br>'.$e->getMessage();
+						$subject = 'Cant Connect to DB to Reactivate';
+						$email = $subject.'<br>Username '.$serviceClass->getUsername().'<br>'.$e->getMessage();
 						(new \MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/website_connect_error.tpl');
 						$success = false;
 					}
