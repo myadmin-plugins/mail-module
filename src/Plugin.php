@@ -62,7 +62,7 @@ class Plugin
 		$serviceTypes = run_event('get_service_types', false, self::$module);
 		$serviceClass = $event->getSubject();
 		myadmin_log(self::$module, 'info', self::$name.' Deactivation', __LINE__, __FILE__, self::$module, $serviceClass->getId());
-		if ($serviceTypes[$serviceClass->getType()]['services_type'] == get_service_define('DIRECTADMIN_STORAGE')) {
+		if ($serviceTypes[$serviceClass->getType()]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
 		} else {
 			$GLOBALS['tf']->history->add(self::$module.'queue', $serviceClass->getId(), 'delete', '', $serviceClass->getCustid());
 		}
@@ -83,7 +83,7 @@ class Plugin
 				$settings = get_module_settings(self::$module);
 				$serviceTypes = run_event('get_service_types', false, self::$module);
 				$db = get_module_db(self::$module);
-				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('DIRECTADMIN_STORAGE')) {
+				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
 					$db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
 					$GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				} else {
@@ -101,7 +101,7 @@ class Plugin
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
-				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('DIRECTADMIN_STORAGE')) {
+				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
 					$class = '\\MyAdmin\\Orm\\'.get_orm_class_from_table($settings['TABLE']);
 					/** @var \MyAdmin\Orm\Product $class **/
 					$serviceClass = new $class();
@@ -164,7 +164,7 @@ class Plugin
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$serviceTypes = run_event('get_service_types', false, self::$module);
-				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('DIRECTADMIN_STORAGE')) {
+				if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
 					$class = '\\MyAdmin\\Orm\\'.get_orm_class_from_table($settings['TABLE']);
 					/** @var \MyAdmin\Orm\Product $class **/
 					$serviceClass = new $class();
