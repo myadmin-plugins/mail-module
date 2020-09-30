@@ -95,7 +95,7 @@ class Plugin
 					$email = $smarty->fetch('email/admin/backup_pending_setup.tpl');
 					$subject = 'Backup '.$serviceInfo[$settings['TITLE_FIELD']].' Is Pending Setup';
 					(new \MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/backup_pending_setup.tpl');
-				}
+				}				
 			})->setReactivate(function ($service) {
 				$serviceTypes = run_event('get_service_types', false, self::$module);
 				$serviceInfo = $service->getServiceInfo();
