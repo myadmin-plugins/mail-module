@@ -21,7 +21,7 @@ class Plugin
 		'USE_REPEAT_INVOICE' => true,
 		'USE_PACKAGES' => true,
 		'BILLING_DAYS_OFFSET' => 0,
-		'IMGNAME' => 'network-drive.png',
+		'IMGNAME' => 'e-mail.png',
 		'REPEAT_BILLING_METHOD' => PRORATE_BILLING,
 		'DELETE_PENDING_DAYS' => 45,
 		'SUSPEND_DAYS' => 14,
