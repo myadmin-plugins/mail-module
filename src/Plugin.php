@@ -84,8 +84,40 @@ class Plugin
                 $serviceTypes = run_event('get_service_types', false, self::$module);
                 $db = get_module_db(self::$module);
                 if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
-                    $db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
+                    /*$db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+
+                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);*/
+
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+
+                    $db->query('UPDATE '.$settings['TABLE'].' SET '.$settings['PREFIX']."_status='pending' WHERE ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+
+                    //Creating Sales ticket
+                    $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
+                    $ticketObj = new \MyAdmin\adminlte\helpdesk\Ticket();
+                    $dept_id = $ticketObj->getDepartmentByName('Sales')['departmentid'];
+                    $ticketObj->createTicket(
+                        $data['account_lid'],
+                        "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup",
+                        "Mail {$serviceInfo[$settings['TITLE_FIELD']]} is waiting for approval and pending setup.",
+                        $dept_id
+                    );
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Ticket created.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+
+                    //Email to customer letting know it takes 24hrs to activate.
+                    $subject = 'Mail '.$serviceInfo[$settings['TITLE_FIELD']].' Is Pending Setup';
+                    $smarty = new \TFSmarty();
+                    $smarty->assign('h1', "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup");
+                    $smarty->assign('name', $data['name']);
+                    $body_rows = [];
+                    $body_rows[] = "Thank you for the Mail {$serviceInfo[$settings['TITLE_FIELD']]} order.";
+                    $body_rows[] = "New accounts are approved in 24 hours. Thank you for your patience.";
+                    $email = $smarty->fetch('email/client/client_email.tpl');
+                    (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
                 } else {
                     $db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
