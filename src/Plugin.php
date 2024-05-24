@@ -89,11 +89,11 @@ class Plugin
 
                     $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);*/
 
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
                     $db->query('UPDATE '.$settings['TABLE'].' SET '.$settings['PREFIX']."_status='pending' WHERE ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
                     //Creating Sales ticket
                     $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
@@ -105,7 +105,7 @@ class Plugin
                         "Mail {$serviceInfo[$settings['TITLE_FIELD']]} is waiting for approval and pending setup.",
                         $dept_id
                     );
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Ticket created.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Ticket created.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
                     //Email to customer letting know it takes 24hrs to activate.
                     $subject = 'Mail '.$serviceInfo[$settings['TITLE_FIELD']].' Is Pending Setup';
@@ -117,7 +117,7 @@ class Plugin
                     $body_rows[] = "New accounts are approved in 24 hours. Thank you for your patience.";
                     $email = $smarty->fetch('email/client/client_email.tpl');
                     (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
                 } else {
                     $db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
