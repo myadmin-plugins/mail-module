@@ -100,11 +100,11 @@ class Plugin
                     $ticketObj = new \MyAdmin\adminlte\helpdesk\Ticket();
                     $depts = $ticketObj->getDepartmentByName('Sales');
                     if (isset($depts['departmentid'])) {
-                        $dept_id = $depts['departmentid'];
+                        $dept_id = (int)$depts['departmentid'];
                     } else { 
                         foreach ($depts as $dept) {
                             if ($dept['departmentapp'] == 'tickets') {
-                                $dept_id = $dept['departmentapp'];
+                                $dept_id = (int)$dept['departmentid'];
                             }
                         }
                     }
