@@ -98,7 +98,16 @@ class Plugin
                     //Creating Sales ticket
                     $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
                     $ticketObj = new \MyAdmin\adminlte\helpdesk\Ticket();
-                    $dept_id = $ticketObj->getDepartmentByName('Sales')['departmentid'];
+                    $depts = $ticketObj->getDepartmentByName('Sales');
+                    if (isset($depts['departmentid'])) {
+                        $dept_id = $depts['departmentid'];
+                    } else { 
+                        foreach ($depts as $dept) {
+                            if ($dept['departmentapp'] == 'tickets') {
+                                $dept_id = $dept['departmentapp'];
+                            }
+                        }
+                    }
                     $ticketObj->createTicket(
                         $data['account_lid'],
                         "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup",
