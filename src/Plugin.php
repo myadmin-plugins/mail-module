@@ -91,9 +91,9 @@ class Plugin
 
                     myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
-                    $db->query('UPDATE '.$settings['TABLE'].' SET '.$settings['PREFIX']."_status='pending' WHERE ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
+                    $db->query('UPDATE '.$settings['TABLE'].' SET '.$settings['PREFIX']."_status='pending-approv' WHERE ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-approv', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending-approv.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
                     //Creating Sales ticket
                     $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
