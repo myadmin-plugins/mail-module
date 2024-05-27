@@ -124,6 +124,7 @@ class Plugin
                     $body_rows = [];
                     $body_rows[] = "Thank you for the Mail {$serviceInfo[$settings['TITLE_FIELD']]} order.";
                     $body_rows[] = "New accounts are approved in 24 hours. Thank you for your patience.";
+                    $smarty->assign('body_rows', $body_rows);
                     $email = $smarty->fetch('email/client/client_email.tpl');
                     (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
                     myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
