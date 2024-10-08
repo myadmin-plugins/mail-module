@@ -112,7 +112,10 @@ class Plugin
                         $data['account_lid'],
                         "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup",
                         "Mail {$serviceInfo[$settings['TITLE_FIELD']]} is waiting for approval and pending setup.",
-                        $dept_id
+                        $dept_id,
+                        [],
+                        $serviceInfo[$settings['PREFIX'].'_id'],
+                        self::$module
                     );
                     myadmin_log(self::$module, 'info', self::$name.' Activation - Ticket created.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
