@@ -84,49 +84,29 @@ class Plugin
                 $serviceTypes = run_event('get_service_types', false, self::$module);
                 $db = get_module_db(self::$module);
                 if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
-                    /*$db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
+                    $db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 
-                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);*/
+                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 
                     myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
 
-                    $db->query('UPDATE '.$settings['TABLE'].' SET '.$settings['PREFIX']."_status='pending-approv' WHERE ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-approv', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Service status set to pending-approv.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
-
-                    //Creating Sales ticket
-                    $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
-                    $ticketObj = new \MyAdmin\adminlte\helpdesk\Ticket();
-                    $depts = $ticketObj->getDepartmentByName('Sales');
-                    if (isset($depts['departmentid'])) {
-                        $dept_id = (int)$depts['departmentid'];
-                    } else { 
-                        foreach ($depts as $dept) {
-                            if ($dept['departmentapp'] == 'tickets') {
-                                $dept_id = (int)$dept['departmentid'];
-                            }
-                        }
-                    }
-                    $ticketObj->createTicket(
-                        $data['account_lid'],
-                        "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup",
-                        "Mail {$serviceInfo[$settings['TITLE_FIELD']]} is waiting for approval and pending setup.",
-                        $dept_id,
-                        [],
-                        $serviceInfo[$settings['PREFIX'].'_id'],
-                        self::$module
-                    );
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - Ticket created.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
-
                     //Email to customer letting know it takes 24hrs to activate.
+                    $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
                     $subject = 'Mail '.$serviceInfo[$settings['TITLE_FIELD']].' Is Pending Setup';
                     $smarty = new \TFSmarty();
                     $smarty->assign('h1', "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup");
                     $smarty->assign('name', $data['name']);
                     $body_rows = [];
-                    $body_rows[] = "Thank you for the Mail {$serviceInfo[$settings['TITLE_FIELD']]} order.";
-                    $body_rows[] = "New accounts are approved in 24 hours. Thank you for your patience.";
+                    $body_rows[] = 'Your account is setting up will be active shortly.';
+                    $body_rows[] = 'You can find your API keys or SMTP username and password from inside our control panel.';
+                    $body_rows[] = 'https://my.interserver.net/view_mail_list';
+                    $body_rows[] = "Please read over our FAQ here: https://www.mail.baby/faq/";
+                    $body_rows[] = "To get started here: https://www.mail.baby/tips/getting-started-with-mailbaby/";
+                    $body_rows[] = "Instructions on how to integrate with various mail servers and control panels are available here: https://www.mail.baby/tips-category/tutorials/";
+                    $body_rows[] = "API documentation is located here: https://www.mail.baby/tips/api/";
+                    $body_rows[] = "The Mail Baby WordPress plugin is available here: https://wordpress.org/plugins/mail-baby-smtp/";
+                    $body_rows[] = "Thank you for the order!";
                     $smarty->assign('body_rows', $body_rows);
                     $email = $smarty->fetch('email/client/client_email.tpl');
                     (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
