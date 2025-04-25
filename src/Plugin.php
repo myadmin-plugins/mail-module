@@ -84,33 +84,59 @@ class Plugin
                 $serviceTypes = run_event('get_service_types', false, self::$module);
                 $db = get_module_db(self::$module);
                 if ($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_type'] == get_service_define('MAIL_ZONEMTA')) {
-                    $db->query("UPDATE {$settings['TABLE']} SET {$settings['PREFIX']}_status='active', {$settings['PREFIX']}_server_status='active' WHERE {$settings['PREFIX']}_id='".$serviceInfo[$settings['PREFIX'].'_id']."'", __LINE__, __FILE__);
-                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-
-                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
-
                     myadmin_log(self::$module, 'info', self::$name.' Activation - Process started.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
+                    $class = '\\MyAdmin\\Orm\\'.get_orm_class_from_table($settings['TABLE']);
+                    /** @var \MyAdmin\Orm\Product $class **/
+                    $serviceClass = new $class();
+                    $serviceClass->load_real($serviceInfo[$settings['PREFIX'].'_id']);
+                    $subevent = new GenericEvent($serviceClass, [
+                        'field1' => $serviceTypes[$serviceClass->getType()]['services_field1'],
+                        'field2' => $serviceTypes[$serviceClass->getType()]['services_field2'],
+                        'type' => $serviceTypes[$serviceClass->getType()]['services_type'],
+                        'category' => $serviceTypes[$serviceClass->getType()]['services_category'],
+                        'email' => $GLOBALS['tf']->accounts->cross_reference($serviceClass->getCustid())
+                    ]);
+                    $success = true;
+                    try {
+                        $GLOBALS['tf']->dispatcher->dispatch($subevent, self::$module.'.activate');
+                    } catch (\Exception $e) {
+                        myadmin_log('myadmin', 'error', 'Got Exception '.$e->getMessage(), __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                        $subject = 'Cant Connect to DB to Activate';
+                        $email = $subject.'<br>ID '.$serviceClass->getId().'<br>'.$e->getMessage();
+                        (new \MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/website_connect_error.tpl');
+                        $success = false;
+                    }
+                    if ($success == true && !$subevent->isPropagationStopped()) {
+                        myadmin_log(self::$module, 'error', 'Dont know how to Activate '.$settings['TBLNAME'].' '.$serviceInfo[$settings['PREFIX'].'_id'].' Type '.$serviceTypes[$serviceClass->getType()]['services_type'].' Category '.$serviceTypes[$serviceClass->getType()]['services_category'], __LINE__, __FILE__, self::$module, $serviceClass->getId());
+                        $success = false;
+                    }
+                    if ($success == true) {
+                        $serviceClass->setStatus('active')->save();
+                        $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                        $serviceClass->setServerStatus('running')->save();
+                        $GLOBALS['tf']->history->add($settings['TABLE'], 'change_server_status', 'running', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 
-                    //Email to customer letting know it takes 24hrs to activate.
-                    $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
-                    $subject = 'Mail '.$serviceInfo[$settings['TITLE_FIELD']].' Is Pending Setup';
-                    $smarty = new \TFSmarty();
-                    $smarty->assign('h1', "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Pending Setup");
-                    $smarty->assign('name', $data['name']);
-                    $body_rows = [];
-                    $body_rows[] = 'Your account is setting up will be active shortly.';
-                    $body_rows[] = 'You can find your API keys or SMTP username and password from inside our control panel.';
-                    $body_rows[] = 'https://my.interserver.net/view_mail_list';
-                    $body_rows[] = "Please read over our FAQ here: https://www.mail.baby/faq/";
-                    $body_rows[] = "To get started here: https://www.mail.baby/tips/getting-started-with-mailbaby/";
-                    $body_rows[] = "Instructions on how to integrate with various mail servers and control panels are available here: https://www.mail.baby/tips-category/tutorials/";
-                    $body_rows[] = "API documentation is located here: https://www.mail.baby/tips/api/";
-                    $body_rows[] = "The Mail Baby WordPress plugin is available here: https://wordpress.org/plugins/mail-baby-smtp/";
-                    $body_rows[] = "Thank you for the order!";
-                    $smarty->assign('body_rows', $body_rows);
-                    $email = $smarty->fetch('email/client/client_email.tpl');
-                    (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
-                    myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
+                        //Email to customer letting know it takes 24hrs to activate.
+                        $data = $GLOBALS['tf']->accounts->read($serviceInfo[$settings['PREFIX'].'_custid']);
+                        $subject = 'Mail '.$serviceInfo[$settings['TITLE_FIELD']].' Is Setup';
+                        $smarty = new \TFSmarty();
+                        $smarty->assign('h1', "Mail {$serviceInfo[$settings['TITLE_FIELD']]} Is Setup");
+                        $smarty->assign('name', $data['name']);
+                        $body_rows = [];
+                        $body_rows[] = 'Your account is setup and active.';
+                        $body_rows[] = 'You can find your API keys or SMTP username and password from inside our control panel.';
+                        $body_rows[] = 'https://my.interserver.net/view_mail_list';
+                        $body_rows[] = "Please read over our FAQ here: https://www.mail.baby/faq/";
+                        $body_rows[] = "To get started here: https://www.mail.baby/tips/getting-started-with-mailbaby/";
+                        $body_rows[] = "Instructions on how to integrate with various mail servers and control panels are available here: https://www.mail.baby/tips-category/tutorials/";
+                        $body_rows[] = "API documentation is located here: https://www.mail.baby/tips/api/";
+                        $body_rows[] = "The Mail Baby WordPress plugin is available here: https://wordpress.org/plugins/mail-baby-smtp/";
+                        $body_rows[] = "Thank you for the order!";
+                        $smarty->assign('body_rows', $body_rows);
+                        $email = $smarty->fetch('email/client/client_email.tpl');
+                        (new \MyAdmin\Mail())->clientMail($subject, $email, $data['account_lid'], 'client/client_email.tpl');
+                        myadmin_log(self::$module, 'info', self::$name.' Activation - client email sent.', __LINE__, __FILE__, self::$module, $serviceInfo[$settings['PREFIX'].'_id']);
+                    }
                 } else {
                     $db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
                     $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
