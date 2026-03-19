@@ -1,28 +1,45 @@
 # Mail Services Module for MyAdmin
 
-Mail Services Module for MyAdmin
+[![Tests](https://github.com/detain/myadmin-mail-module/actions/workflows/tests.yml/badge.svg)](https://github.com/detain/myadmin-mail-module/actions/workflows/tests.yml)
+[![Latest Stable Version](https://poser.pugx.org/detain/myadmin-mail-module/version)](https://packagist.org/packages/detain/myadmin-mail-module)
+[![Total Downloads](https://poser.pugx.org/detain/myadmin-mail-module/downloads)](https://packagist.org/packages/detain/myadmin-mail-module)
+[![License](https://poser.pugx.org/detain/myadmin-mail-module/license)](https://packagist.org/packages/detain/myadmin-mail-module)
 
-## Build Status and Code Analysis
+A MyAdmin plugin module that provides mail service provisioning, activation, deactivation, and lifecycle management. It integrates with the Symfony EventDispatcher to handle service events such as enabling, reactivating, suspending, and terminating mail accounts (including ZoneMTA-based services).
 
-Site          | Status
---------------|---------------------------
-![Travis-CI](http://i.is.cc/storage/GYd75qN.png "Travis-CI")     | [![Build Status](https://travis-ci.org/detain/myadmin-mail-module.svg?branch=master)](https://travis-ci.org/detain/myadmin-mail-module)
-![CodeClimate](http://i.is.cc/storage/GYlageh.png "CodeClimate")  | [![Code Climate](https://codeclimate.com/github/detain/myadmin-mail-module/badges/gpa.svg)](https://codeclimate.com/github/detain/myadmin-mail-module) [![Test Coverage](https://codeclimate.com/github/detain/myadmin-mail-module/badges/coverage.svg)](https://codeclimate.com/github/detain/myadmin-mail-module/coverage) [![Issue Count](https://codeclimate.com/github/detain/myadmin-mail-module/badges/issue_count.svg)](https://codeclimate.com/github/detain/myadmin-mail-module)
-![Scrutinizer](http://i.is.cc/storage/GYeUnux.png "Scrutinizer")   | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/?branch=master) [![Build Status](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/badges/build.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/mail-module/build-status/master)
-![Codacy](http://i.is.cc/storage/GYi66Cx.png "Codacy")        | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/226251fc068f4fd5b4b4ef9a40011d06)](https://www.codacy.com/app/detain/myadmin-mail-module) [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/25fa74eb74c947bf969602fcfe87e349)](https://www.codacy.com/app/detain/myadmin-mail-module?utm_source=github.com&utm_medium=referral&utm_content=detain/myadmin-mail-module&utm_campaign=Badge_Coverage)
-![Coveralls](http://i.is.cc/storage/GYjNSim.png "Coveralls")    | [![Coverage Status](https://coveralls.io/repos/github/detain/db_abstraction/badge.svg?branch=master)](https://coveralls.io/github/detain/myadmin-mail-module?branch=master)
-![Packagist](http://i.is.cc/storage/GYacBEX.png "Packagist")     | [![Latest Stable Version](https://poser.pugx.org/detain/myadmin-mail-module/version)](https://packagist.org/packages/detain/myadmin-mail-module) [![Total Downloads](https://poser.pugx.org/detain/myadmin-mail-module/downloads)](https://packagist.org/packages/detain/myadmin-mail-module) [![Latest Unstable Version](https://poser.pugx.org/detain/myadmin-mail-module/v/unstable)](//packagist.org/packages/detain/myadmin-mail-module) [![Monthly Downloads](https://poser.pugx.org/detain/myadmin-mail-module/d/monthly)](https://packagist.org/packages/detain/myadmin-mail-module) [![Daily Downloads](https://poser.pugx.org/detain/myadmin-mail-module/d/daily)](https://packagist.org/packages/detain/myadmin-mail-module) [![License](https://poser.pugx.org/detain/myadmin-mail-module/license)](https://packagist.org/packages/detain/myadmin-mail-module)
+## Features
 
+- Event-driven mail service lifecycle management (activate, reactivate, deactivate, terminate)
+- ZoneMTA service type support with dedicated provisioning workflows
+- Configurable suspension, deletion, and billing settings
+- Admin and client email notifications on service state changes
+- Integrates with the MyAdmin ORM and settings framework
 
 ## Installation
-
-Install with composer like
 
 ```sh
 composer require detain/myadmin-mail-module
 ```
 
+## Configuration
+
+The module exposes its settings through the `$settings` static property on `Detain\MyAdminMail\Plugin`. Key defaults include:
+
+| Setting              | Default                   |
+|----------------------|---------------------------|
+| SERVICE_ID_OFFSET    | 1100                      |
+| SUSPEND_DAYS         | 14                        |
+| SUSPEND_WARNING_DAYS | 7                         |
+| DELETE_PENDING_DAYS  | 45                        |
+| EMAIL_FROM           | support@interserver.net   |
+
+## Running Tests
+
+```sh
+composer install
+vendor/bin/phpunit
+```
+
 ## License
 
-The Mail Services Module for MyAdmin class is licensed under the LGPL-v2.1 license.
-
+This package is licensed under the [LGPL-2.1-only](https://opensource.org/licenses/LGPL-2.1) license.
