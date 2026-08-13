@@ -1,6 +1,6 @@
 ---
 name: phpunit-plugin-test
-description: Adds PHPUnit 9.6 test cases to tests/PluginTest.php for the myadmin-mail-module. Use when the user says 'add test', 'write unit test', 'test the plugin', 'cover this method', or modifies tests/PluginTest.php. Covers static property assertions, getHooks() registration, ReflectionClass-based signature checks, and source-file string assertions. Do NOT use for integration tests that hit a real database or for testing non-Plugin classes. NOTE: for a plugin's contract/behavioral tests (tests/ContractTest.php, the shared harness, composer myadmin:scaffold-tests) use the plugin-contract-tests skill instead — this skill's reflection-only guidance predates that harness.
+description: Adds PHPUnit 9.6 test cases to tests/PluginTest.php for the myadmin-mail-module. Use when the user says 'add test', 'write unit test', 'test the plugin', 'cover this method', or modifies tests/PluginTest.php. Covers static property assertions, getHooks() registration, ReflectionClass-based signature checks, and source-file string assertions. Do NOT use for integration tests that hit a real database or for testing non-Plugin classes. For a plugin's contract or behavioral tests (tests/ContractTest.php, the shared harness, composer myadmin:scaffold-tests) use the plugin-contract-tests skill instead — this skill's reflection-only guidance predates that harness.
 ---
 <!-- myadmin-contract-harness-notice -->
 > ### ⚠️ Read this before the rest of the file
