@@ -486,10 +486,23 @@ class PluginTest extends TestCase
      */
     public function testGetHooksReturnType(): void
     {
-        $method = $this->reflection->getMethod('getHooks');
-        $returnType = $method->getReturnType();
-        self::assertNotNull($returnType);
-        self::assertSame('array', $returnType->getName());
+        // Asserts what getHooks() RETURNS, not what it DECLARES.
+        //
+        // This previously required a `: array` return type on the signature. No plugin in this
+        // fleet has one -- all 69 declare `public static function getHooks()` bare -- so the
+        // assertion described a convention that exists nowhere and could only ever fail here.
+        //
+        // Executing it is also the stronger check: a declared `: array` proves nothing about a
+        // body that throws before returning, which is exactly the failure mode this fleet's
+        // constant-referencing plugins have.
+        $hooks = Plugin::getHooks();
+
+        self::assertIsArray($hooks);
+        self::assertNotSame([], $hooks, 'this plugin is expected to register hooks');
+        foreach ($hooks as $key => $handler) {
+            self::assertIsString($key);
+            self::assertIsCallable($handler, $key.' does not resolve to anything callable');
+        }
     }
 
     /**
